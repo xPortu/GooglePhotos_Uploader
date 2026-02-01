@@ -20,7 +20,8 @@ FROM python:3.11-alpine
 # Install only essential runtime dependencies
 RUN apk add --no-cache \
     cifs-utils \
-    inotify-tools
+    inotify-tools \
+    tzdata
 
 # Copy dependencies from the build stage
 COPY --from=builder /root/.local /root/.local
@@ -28,8 +29,8 @@ ENV PATH=/root/.local/bin:$PATH
 
 # Configure non-root user
 RUN adduser -D -u 1000 appuser && \
-    mkdir /data && \
-    chown appuser:appuser /data
+    mkdir /data /logs && \
+    chown appuser:appuser /data /logs
 
 WORKDIR /app
 
@@ -38,6 +39,8 @@ COPY script_gphoto.py .
 
 USER appuser
 ENV PYTHONUNBUFFERED=1 \
-    WATCHED_FOLDER=/data
+    WATCHED_FOLDER=/data \
+    LOG_PATH=/logs \
+    TZ=Europe/Madrid
 
 CMD ["python", "-u", "script_gphoto.py"]
