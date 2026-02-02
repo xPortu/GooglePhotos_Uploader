@@ -46,5 +46,3 @@ jobs:
             xportu/googlephotos_uploader:latest
             xportu/googlephotos_uploader:sha-${{ steps.vars.outputs.short_sha }}
             xportu/googlephotos_uploader:${{ steps.vars.outputs.ts }}
-          # Esto hace que el log del build se vea completo y no “resumido”
-          outputs: type=registry
