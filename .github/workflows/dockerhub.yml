@@ -5,6 +5,10 @@ on:
     branches:
       - main
 
+concurrency:
+  group: dockerhub-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
