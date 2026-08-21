@@ -20,7 +20,7 @@ os.makedirs(LOG_PATH, exist_ok=True)
 FAILED_FOLDER = os.path.join(WATCHED_FOLDER, "_failed")
 os.makedirs(FAILED_FOLDER, exist_ok=True)
 
-VALID_EXT = (".jpg", ".jpeg", ".png", ".heic", ".mp4")
+VALID_EXT = (".jpg", ".jpeg", ".png", ".heic", ".mp4", ".MP")
 
 client = Client(auth_data=AUTH_DATA)
 
