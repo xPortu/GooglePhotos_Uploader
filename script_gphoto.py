@@ -2,6 +2,7 @@ import os
 import time
 import shutil
 import threading
+import mimetypes
 from queue import Queue, Empty
 from datetime import datetime
 
@@ -9,6 +10,10 @@ from watchdog.observers.polling import PollingObserver as Observer
 from watchdog.events import FileSystemEventHandler
 
 from gpmc import Client
+
+# Registrar Motion Photo .MP como vídeo MP4 sin renombrarlo
+mimetypes.add_type("video/mp4", ".mp")
+mimetypes.add_type("video/mp4", ".MP")
 
 WATCHED_FOLDER = os.environ.get("WATCHED_FOLDER", "/data")
 AUTH_DATA = os.environ.get("AUTH_DATA", "")
