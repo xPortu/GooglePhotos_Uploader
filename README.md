@@ -100,7 +100,7 @@ You only need to do this **once** to retrieve your permanent key.
   <summary><strong>Click to expand</strong></summary>
 
 1. Use a rooted Android device or emulator (Android 9–13 recommended).
-2. Connect your device to your PC via ADB.
+2. Connect your device to your PC via ADB. (adb shell root)
 3. Install [HTTP Toolkit](https://httptoolkit.com).
 4. In HTTP Toolkit, go to **Intercept → Android Device via ADB**.
 5. Apply the filter:
@@ -121,6 +121,15 @@ You only need to do this **once** to retrieve your permanent key.
 8. That’s your `AUTH_DATA`! 🎉
 
 </details>
+
+Troubleshooting
+  No Auth Request Intercepted
+    Log out of your Google account.
+    Log in again.
+    Try Android App via Frida interception method in HTTP Toolkit.
+  Token binding key not found
+    Make sure the same Google account is present on the connected device.
+    Make sure root is available to ADB.
 
 ---
 
