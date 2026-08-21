@@ -2,7 +2,7 @@ import os
 import time
 import shutil
 import threading
-import mimetypes
+# import mimetypes
 from queue import Queue, Empty
 from datetime import datetime
 
@@ -12,8 +12,8 @@ from watchdog.events import FileSystemEventHandler
 from gpmc import Client
 
 # Registrar Motion Photo .MP como vídeo MP4 sin renombrarlo
-mimetypes.add_type("video/mp4", ".mp")
-mimetypes.add_type("video/mp4", ".MP")
+# mimetypes.add_type("video/mp4", ".mp")
+# mimetypes.add_type("video/mp4", ".MP")
 
 WATCHED_FOLDER = os.environ.get("WATCHED_FOLDER", "/data")
 AUTH_DATA = os.environ.get("AUTH_DATA", "")
@@ -25,7 +25,8 @@ os.makedirs(LOG_PATH, exist_ok=True)
 FAILED_FOLDER = os.path.join(WATCHED_FOLDER, "_failed")
 os.makedirs(FAILED_FOLDER, exist_ok=True)
 
-VALID_EXT = (".jpg", ".jpeg", ".png", ".heic", ".mp4", ".mp")
+VALID_EXT = (".jpg", ".jpeg", ".png", ".heic", ".mp4")
+# VALID_EXT = (".jpg", ".jpeg", ".png", ".heic", ".mp4", ".mp")
 
 client = Client(auth_data=AUTH_DATA)
 
