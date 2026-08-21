@@ -24,8 +24,8 @@ RUN apk add --no-cache \
     tzdata
 
 # Copy dependencies from the build stage
-COPY --from=builder /root/.local /root/.local
-ENV PATH=/root/.local/bin:$PATH
+COPY --from=builder /usr/local/lib/python3.11/site-packages /usr/local/lib/python3.11/site-packages
+COPY --from=builder /usr/local/bin /usr/local/bin
 
 # Configure non-root user
 RUN adduser -D -u 1000 appuser && \
