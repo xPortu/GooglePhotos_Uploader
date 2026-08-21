@@ -180,12 +180,18 @@ def worker():
 
 
 def enqueue(path: str):
+    # Ignorar todo lo que esté dentro de _failed
+    if path.startswith(FAILED_FOLDER):
+        return
+
     if not is_media_file(path):
         return
+
     with in_flight_lock:
         if path in in_flight:
             return
         in_flight.add(path)
+
     work_q.put(path)
 
 
@@ -210,12 +216,15 @@ class PhotoHandler(FileSystemEventHandler):
 
 def initial_scan():
     print("[SCAN] Escaneo inicial...")
-    for root, _, files in os.walk(WATCHED_FOLDER):
+    for root, dirs, files in os.walk(WATCHED_FOLDER):
+        
+        if root.startswith(FAILED_FOLDER):
+            continue
+
         for f in files:
             p = os.path.join(root, f)
             if is_media_file(p):
                 enqueue(p)
-
 
 def periodic_rescan(interval_sec: int = 60):
     while True:
