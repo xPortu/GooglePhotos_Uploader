@@ -188,10 +188,14 @@ def process_file(path: str):
         time.sleep(1)
         enqueue(path)
         return
-
+   
     print(f"[UPLOAD] Subiendo: {path}")
     try:
         output = client.upload(target=path, show_progress=True)
+        # gpmc devuelve {} cuando internamente falla una subida
+        if not output:
+            raise Exception("Google Photos devolvió resultado vacío")
+        
         print(f"[OK] Subido: {output}")
 
         # NUEVO: log de éxito
