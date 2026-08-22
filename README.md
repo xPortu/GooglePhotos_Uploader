@@ -100,7 +100,7 @@ You only need to do this **once** to retrieve your permanent key.
   <summary><strong>Click to expand</strong></summary>
 
 1. Use a rooted Android device or emulator (Android 9–13 recommended).
-2. Connect your device to your PC via ADB. (adb shell root)
+2. Connect your device to your PC via ADB. (adb root)
 3. Install [HTTP Toolkit](https://httptoolkit.com).
 4. In HTTP Toolkit, go to **Intercept → Android Device via ADB**.
 5. Apply the filter:
