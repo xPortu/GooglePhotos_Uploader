@@ -1,8 +1,48 @@
+
 import os
+   
 import time
 import shutil
 import threading
 # import mimetypes
+
+def print_banner():
+    print(r"""
+ __   __ _____            _
+ \ \ / /|  __ \          | |
+  \ V / | |__) |__  _ __ | |_ _   _
+   > <  |  ___/ _ \| '_ \| __| | | |
+  / . \ | |  | (_) | | | | |_| |_| |
+ /_/ \_\|_|   \___/|_| |_|\__|\__,_|
+
+              xPortu
+       GooglePhotos_Uploader
+""")
+
+
+def print_startup_info():
+    print_banner()
+
+    print(f"UID             : {os.getuid()}")
+    print(f"GID             : {os.getgid()}")
+    print(f"WATCHED_FOLDER  : {WATCHED_FOLDER}")
+    print(f"LOG_PATH        : {LOG_PATH}")
+    print(f"FAILED_FOLDER   : {FAILED_FOLDER}")
+    print()
+
+    if os.access(WATCHED_FOLDER, os.W_OK):
+        print(f"[OK] Escritura en {WATCHED_FOLDER}")
+    else:
+        print(f"[WARN] Sin escritura en {WATCHED_FOLDER}")
+
+    if os.access(LOG_PATH, os.W_OK):
+        print(f"[OK] Escritura en {LOG_PATH}")
+    else:
+        print(f"[WARN] Sin escritura en {LOG_PATH}")
+
+    print()
+
+
 from queue import Queue, Empty
 from datetime import datetime
 
@@ -56,19 +96,28 @@ def _log_file(success: bool) -> str:
 
 
 def log_success(path: str, output):
-    line = f"{_ts()} | OK | {path} | {output}\n"
-    with log_lock:
-        with open(_log_file(True), "a", encoding="utf-8") as f:
-            f.write(line)
+    try:
+        line = f"{_ts()} | OK | {path} | {output}\n"
+
+        with log_lock:
+            with open(_log_file(True), "a", encoding="utf-8") as f:
+                f.write(line)
+
+    except Exception as e:
+        print(f"[WARN] Error escribiendo uploads log: {e}")
 
 
 def log_error(path: str, err: str, extra: str = ""):
-    # extra puede incluir info adicional (p.ej. movido a failed)
-    extra_part = f" | {extra}" if extra else ""
-    line = f"{_ts()} | ERR | {path} | {err}{extra_part}\n"
-    with log_lock:
-        with open(_log_file(False), "a", encoding="utf-8") as f:
-            f.write(line)
+    try:
+        extra_part = f" | {extra}" if extra else ""
+        line = f"{_ts()} | ERR | {path} | {err}{extra_part}\n"
+
+        with log_lock:
+            with open(_log_file(False), "a", encoding="utf-8") as f:
+                f.write(line)
+
+    except Exception as e:
+        print(f"[WARN] Error escribiendo errors log: {e}")
 
 
 def is_media_file(path: str) -> bool:
@@ -174,19 +223,25 @@ def worker():
     while True:
         try:
             path = work_q.get(timeout=1)
+
         except Empty:
             continue
 
         try:
             process_file(path)
+
+        except Exception as e:
+            print(f"[FATAL] Error inesperado procesando {path}: {e}")
+
         finally:
             with in_flight_lock:
                 in_flight.discard(path)
+
             work_q.task_done()
 
 
 def enqueue(path: str):
-    # Ignorar todo lo que esté dentro de _failed
+
     if path.startswith(FAILED_FOLDER):
         return
 
@@ -196,6 +251,7 @@ def enqueue(path: str):
     with in_flight_lock:
         if path in in_flight:
             return
+
         in_flight.add(path)
 
     work_q.put(path)
@@ -240,6 +296,8 @@ def periodic_rescan(interval_sec: int = 60):
 
 
 if __name__ == "__main__":
+    print_startup_info()
+    
     # Arranca worker
     t = threading.Thread(target=worker, daemon=True)
     t.start()
