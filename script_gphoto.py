@@ -1,9 +1,10 @@
 
 import os
-   
 import time
 import shutil
 import threading
+import signal
+import sys
 # import mimetypes
 
 def print_banner():
@@ -43,7 +44,6 @@ def print_startup_info():
 
     print()
 
-
 from queue import Queue, Empty
 from datetime import datetime
 
@@ -79,6 +79,18 @@ in_flight_lock = threading.Lock()
 # Lock para escritura concurrente de logs
 log_lock = threading.Lock()
 
+shutdown_requested = False
+observer = None
+
+def handle_shutdown(signum, frame):
+    global shutdown_requested
+
+    print(f"[SHUTDOWN] Señal recibida ({signum})")
+
+    shutdown_requested = True
+
+    if observer:
+        observer.stop()
 
 def _today_str() -> str:
     # Fecha local del contenedor (si quieres TZ, se ajusta en Docker con TZ=Europe/Madrid, etc.)
@@ -225,10 +237,9 @@ def process_file(path: str):
 
 
 def worker():
-    while True:
+    while not shutdown_requested:
         try:
             path = work_q.get(timeout=1)
-
         except Empty:
             continue
 
@@ -302,7 +313,10 @@ def periodic_rescan(interval_sec: int = 60):
 
 if __name__ == "__main__":
     print_startup_info()
-    
+   
+    signal.signal(signal.SIGTERM, handle_shutdown)
+    signal.signal(signal.SIGINT, handle_shutdown)
+   
     # Arranca worker
     t = threading.Thread(target=worker, daemon=True)
     t.start()
@@ -321,10 +335,11 @@ if __name__ == "__main__":
     print(f"Monitorizando {WATCHED_FOLDER}...")
     print(f"Logs en {LOG_PATH} (uploads_YYYY-MM-DD.log / errors_YYYY-MM-DD.log)")
 
-    try:
-        while True:
-            time.sleep(10)
-    except KeyboardInterrupt:
-        observer.stop()
-
-    observer.join()
+    while not shutdown_requested:
+        time.sleep(1)
+   
+    print("[SHUTDOWN] Esperando observer...")
+   
+    observer.join(timeout=10)
+   
+    print("[SHUTDOWN] Finalizado")
